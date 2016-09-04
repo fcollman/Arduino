@@ -22,7 +22,7 @@
 #include <stdlib.h>
 
 #if defined(USBCON)
-
+#define ENABLE_CDC false
 /** Pulse generation counters to keep track of the number of milliseconds remaining for each pulse type */
 #define TX_RX_LED_PULSE_MS 100
 volatile u8 TxLEDPulse; /**< Milliseconds remaining for data Tx LED pulse */
@@ -367,10 +367,10 @@ static
 bool ClassInterfaceRequest(USBSetup& setup)
 {
 	u8 i = setup.wIndex;
-
+	#if ENABLE_CDC
 	if (CDC_ACM_INTERFACE == i)
 		return CDC_Setup(setup);
-
+	#endif
 #ifdef PLUGGABLE_USB_ENABLED
 	return PluggableUSB().setup(setup);
 #endif
@@ -399,7 +399,7 @@ bool SendControl(u8 d)
 	}
 	_cmark++;
 	return true;
-}
+};
 
 //	Clipped by _cmark/_cend
 int USB_SendControl(u8 flags, const void* d, int len)
@@ -458,9 +458,9 @@ int USB_RecvControl(void* d, int len)
 static u8 SendInterfaces()
 {
 	u8 interfaces = 0;
-
+	#if ENABLE_CDC
 	CDC_GetInterface(&interfaces);
-
+	#endif
 #ifdef PLUGGABLE_USB_ENABLED
 	PluggableUSB().getInterface(&interfaces);
 #endif
